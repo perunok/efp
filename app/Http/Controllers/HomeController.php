@@ -26,7 +26,7 @@ class HomeController extends Controller
         $uniqid = uniqid();
         $broadcast->pid = $uniqid;
         $broadcast->title = $request->title;
-        $broadcast->description =  str_replace(["\r", "\n"], " <br /> ", $request->description);
+        $broadcast->description = $request->description;
         $broadcast->tags = $request->tags;
         $path = request()->file('attachment')->store('Broadcast Files', 'public');
         if ($request->has("reportable")) {
@@ -83,7 +83,7 @@ class HomeController extends Controller
 
         $broadcast = [];
         $broadcast['title'] = $request->title;
-        $broadcast['description'] =  str_replace(["\r", "\n"], " <br /> ", $request->description);
+        $broadcast['description'] =  $request->description;
         $broadcast['tags'] = $request->tags;
         if ($request->has("attachment")) {
             $path = request()->file('attachment')->store('Broadcast Files', 'public');
@@ -202,5 +202,10 @@ class HomeController extends Controller
             error_log($th);
             return json_encode(['status' => "error"]);
         }
+    }
+    function getBroadcast(Request $request)
+    {
+        $broadcast = Broadcast::where('pid',$request->id)->first();
+        return view('broadcast_detail', ['broadcast' => $broadcast]);
     }
 }

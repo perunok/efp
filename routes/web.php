@@ -20,18 +20,19 @@ Route::get('logout', function () {
     return redirect('/');
 })->name('logout');
 
-Route::get('/',[HomeController::class,'index'])->name('index');
+Route::get('/', [HomeController::class, 'index'])->name('index');
 
 Route::get('new_broadcast', function () {
     return view('new_broadcast_form');
 })->name('new_broadcast');
 
-Route::post('broadcast/new',[HomeController::class,'makeBroadcast'])->name('make_broadcast');
-Route::post('broadcast/edit',[HomeController::class,'editBroadcast'])->name('broadcasted_list');
-Route::get('broadcast/rebroadcast',[HomeController::class,'rebroadcast']);
-Route::get('tip/bookmark',[HomeController::class,'bookmark']);
+Route::post('broadcast/new', [HomeController::class, 'makeBroadcast'])->name('make_broadcast');
+Route::post('broadcast/edit', [HomeController::class, 'editBroadcast'])->name('broadcasted_list');
+Route::get('broadcast_get', [HomeController::class, 'getBroadcast']);
+Route::get('rebroadcast', [HomeController::class, 'rebroadcast']);
+Route::get('broadcasted_list', [HomeController::class, 'showBroadcasted'])->name('broadcasted_list');
+Route::get('tip/bookmark', [HomeController::class, 'bookmark']);
 
-Route::get('broadcasted_list',[HomeController::class,'showBroadcasted'])->name('broadcasted_list');
 
 Route::get('reporting', function () {
     return view('reporting');
@@ -40,8 +41,8 @@ Route::get('reporting', function () {
 
 // bot related routes
 Route::get('setwebhook', [BotController::class, 'setWebhook']);
-Route::get('test', [BotController::class,'index']);
-Route::post('/bot',[BotController::class,'webhookUpdate']);
+Route::get('test', [BotController::class, 'index']);
+Route::post('/bot', [BotController::class, 'webhookUpdate']);
 
 
 

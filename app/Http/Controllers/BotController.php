@@ -141,6 +141,7 @@ class BotController extends Controller
                         Cache::forget($chat_id);
                         Cache::put($chat_id, $value, 600);
                         $this->replay($update, "Please send me a picture!", [['Abort']]);
+                        return;
                     }
                     $value = ['expected' => 'evidence_photo', 'text' => $data['text']];
                     Cache::forget($chat_id);
@@ -153,18 +154,17 @@ class BotController extends Controller
                         $postId = $data["post_id"];
                         $this->replay($update, "Thank you for reporting to the commision!", [['Drop Tip'], ['Setup Profile'], ['Search Announcements']]);
                         $tip = new Tip();
-                        $p1 = str_replace("'", "&prime;", $data['text']);
-                        $p2 = str_replace(["\r", "\n"], " <br /> ", $p1);
+                        $p = str_replace("'", "&prime;", Cache::get($chat_id)['text']);
+                        $tip->text = $p;
                         $tip->for = $postId;
-                        $tip->text = $p2;
                         $tip->save();
                         Cache::forget($chat_id);
                         return;
                     }
+                    $this->replay($update, "Thank you for reporting to the commision!", [['Drop Tip'], ['Setup Profile'], ['Search Announcements']]);
                     $tip = new Tip();
-                    $p1 = str_replace("'", "&prime;", Cache::get($chat_id)['text']);
-                    $p2 = str_replace(["\r", "\n"], " <br /> ", $p1);
-                    $tip->text = $p2;
+                    $p = str_replace("'", "&prime;", Cache::get($chat_id)['text']);
+                    $tip->text = $p;
                     $tip->save();
                     Cache::forget($chat_id);
                     return;

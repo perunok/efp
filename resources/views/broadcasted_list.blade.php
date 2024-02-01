@@ -125,12 +125,19 @@
                             </th>
                             <td class="px-6 py-4">
                                 {{ substr($item->description, 0, 35) }}
-
                             </td>
                             <td class="px-6 py-4">
                                 {{ substr($item->tags, 0, 35) }}
                             </td>
                             <td class=" flex px-6 py-4 w-1/6">
+                                <a href="broadcast_get?id={{$item->pid}}"><svg class="w-6 h-6 dark:hover:text-yellow-400 hover:text-blue-800 me-2"
+                                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path fill-rule="evenodd"
+                                            d="M2 12a10 10 0 1 1 20 0 10 10 0 0 1-20 0Zm9.4-5.5a1 1 0 1 0 0 2 1 1 0 1 0 0-2ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4c0-.6-.4-1-1-1h-2Z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </a>
                                 <a href="{{ asset('/storage/' . $item->attachment) }}" target="_blank" class="me-2">
                                     <svg class="w-6 h-6 dark:hover:text-yellow-400 hover:text-blue-800
                                     "
@@ -280,12 +287,12 @@
             }
 
             async function rebroadcast(id) {
-                const response = await fetch('broadcast/rebroadcast?id=' + id);
+                const response = await fetch('rebroadcast?id=' + id);
                 const data = await response.json();
                 if (data['status'] == "ok") {
-                    alert("successfuly broadcasted")
+                    showAlert("Rebroadcasted Sussessfuly", 4)
                 } else {
-                    alert("error while broadcasting")
+                    showAlert("Rebroadcast Faild", 4)
                 }
             }
         </script>

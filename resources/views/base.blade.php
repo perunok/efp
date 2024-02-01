@@ -127,6 +127,8 @@
     {{-- end of top nav --}}
     <div class="mx-auto">
         @yield('content')
+        <x-alert text="shit" />
+
     </div>
 </body>
 
@@ -179,6 +181,15 @@
         }
 
     });
+
+    function showAlert(message, seconds) {
+        page_alert_text.innerHTML = message
+        page_alert.hidden = false
+        setTimeout(() => {
+            page_alert.hidden = true
+
+        }, seconds * 1000);
+    }
 </script>
 
 {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script> --}}

@@ -10,7 +10,7 @@
             @foreach ($tips as $item)
                 <div @if ($item->marked) class="border border-green-300 rounded-lg w-fit" @endif>
                     <button
-                        onclick="fillin('{{ $item->id }}','{{ $item->text }}','{{ asset($item->attachment) }}','{{ $item->marked }}','{{ $item->created_at }}')"
+                        onclick="fillin('{{ $item->id }}','{{ $item->for }}','{{ $item->text }}','{{ asset($item->attachment) }}','{{ $item->marked }}','{{ $item->created_at }}')"
                         data-modal-target="default-modal" data-modal-toggle="default-modal"
                         class="block max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
                         type="button">
@@ -100,6 +100,9 @@
                                 d="m13 19-6-5-6 5V2a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17Z" />
                         </svg>
                     </button>
+                    <a href="#" id="modalShowParent" hidden><span
+                            class="bg-green-100 text-green-800 text-xl font-medium mx-5 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">show
+                            parent broadcast</span></a>
                 </div>
             </div>
         </div>
@@ -113,13 +116,19 @@
         const modalBookmark = document.getElementById("modalBookmark")
         const modalBookmarkBtn = document.getElementById("modalBookmarkBtn")
         const modalDate = document.getElementById("modalDate")
+        const modalShowParent = document.getElementById("modalShowParent")
+        const pageAlert = document.getElementById("page_alert")
 
-        function fillin(id, text, img, marked, datetime) {
+        function fillin(id, parent, text, img, marked, datetime) {
             modalDescription.innerHTML = text
             modalTitle.innerHTML = text.substring(0, 20) + " ..."
             modalImageLink.href = img
             modalImage.src = img
             modalBookmarkBtn.value = id
+            if (parent.length != 0) {
+                modalShowParent.hidden = false
+                modalShowParent.href = "broadcast_get?id=" + parent
+            }
             if (marked == 1) {
                 modalBookmark.setAttribute('fill', "currentColor")
             } else {
@@ -131,12 +140,14 @@
         async function bookmark(event) {
             const response = await fetch('tip/bookmark?id=' + event.target.value);
             const data = await response.json();
-            location.reload()
             if (data['status'] == "ok") {
-                alert("successfuly toggled")
+                showAlert("Bookmark Toggled Sussessfuly", 4)
             } else {
-                alert("error while toggling")
+                showAlert("Bookmark Toggle Faild", 4)
             }
+            setTimeout(() => {
+                location.reload()
+            }, 2000);
         }
     </script>
 @endsection

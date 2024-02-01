@@ -9,7 +9,7 @@
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg min-h-80">
             <div class="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4 ">
                 <div>
-                    <button id="dropdownRadioButton" data-dropdown-toggle="dropdownRadio"
+                    <button disabled id="dropdownRadioButton" data-dropdown-toggle="dropdownRadio"
                         class="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
                         type="button">
                         <svg class="w-3 h-3 text-gray-500 dark:text-gray-400 me-3" aria-hidden="true"
@@ -111,9 +111,6 @@
                             Tag
                         </th>
                         <th scope="col" class="px-6 py-3 w-1/6">
-                            Attachment
-                        </th>
-                        <th scope="col" class="px-6 py-3 w-1/6">
                             Action
                         </th>
                     </tr>
@@ -133,14 +130,18 @@
                             <td class="px-6 py-4">
                                 {{ substr($item->tags, 0, 35) }}
                             </td>
-                            <td class="px-6 py-4">
-                                <a href="{{ asset('/storage/' . $item->attachment) }}" target="_blank"
-                                    class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                                    attachment
-                                </a>
-                            </td>
                             <td class=" flex px-6 py-4 w-1/6">
-                                <button onclick="rebroadcast({{ $item->id }})"><span
+                                <a href="{{ asset('/storage/' . $item->attachment) }}" target="_blank" class="me-2">
+                                    <svg class="w-6 h-6 dark:hover:text-yellow-400 hover:text-blue-800
+                                    "
+                                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path fill-rule="evenodd"
+                                            d="M9 2.2V7H4.2l.4-.5 3.9-4 .5-.3Zm2-.2v5a2 2 0 0 1-2 2H4v11c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-7Zm.4 9.6a1 1 0 0 0-1.8 0l-2.5 6A1 1 0 0 0 8 19h8a1 1 0 0 0 .9-1.4l-2-4a1 1 0 0 0-1.7-.2l-.5.7-1.3-2.5ZM13 9.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </a>
+                                <button onclick="rebroadcast('{{ $item->pid }}')"><span
                                         class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Rebroadcast</span></button>
                                 <button onclick="populateEditor({{ $item }})" data-modal-target="editModal"
                                     data-modal-toggle="editModal"><span
@@ -270,7 +271,7 @@
                 frmTitle.value = item["title"]
                 frmDescription.value = item["description"]
                 frmTags.value = item["tags"]
-                frmId.value = item["id"]
+                frmId.value = item["pid"]
                 if (item["reportable"]) {
                     frmReportable.checked = true
                 } else {

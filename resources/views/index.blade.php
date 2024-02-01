@@ -3,28 +3,45 @@
     <div class="bg-dark text-center">
         <h1 class="text-3xl text-blue-900 dark:text-blue-200 ">Tips</h1>
     </div>
-
     <div class="container mx-auto w-4/6">
-        <div class="p-1 m-2 rounded-lg bg-blue-200 dark:bg-blue-400 "
-            role="alert">
+        <div class="p-1 m-2 rounded-lg bg-blue-200 dark:bg-blue-400 " role="alert">
         </div>
         <div class="p-3 grid grid-cols-3 md:grid-cols-4 gap-4">
             @foreach ($tips as $item)
-                <div>
-                    <button onclick="fillin('{{ $item->text }}','{{ asset($item->attachment) }}','{{ $item->marked }}','{{ $item->created_at }}')"
+                <div @if ($item->marked) class="border border-green-300 rounded-lg w-fit" @endif>
+                    <button
+                        onclick="fillin('{{ $item->id }}','{{ $item->text }}','{{ asset($item->attachment) }}','{{ $item->marked }}','{{ $item->created_at }}')"
                         data-modal-target="default-modal" data-modal-toggle="default-modal"
                         class="block max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
                         type="button">
                         <div class="flex items-center mb-2">
                             <a href="#">
-                                <img class="w-10 h-10 rounded-lg" src="{{ asset($item->attachment) }}" alt="Jese Leos">
+                                <img class="w-10 h-10 rounded-lg" src="{{ asset($item->attachment) }}" alt="noimage">
                             </a>
                             <h5 class="ms-3 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
                                 {{ substr($item->text, 0, 10) }} ...</h5>
+                            @if (!empty($item->for))
+                                <span
+                                    class="inline-flex items-center justify-center w-4 h-4 ms-2 text-xs font-semibold text-dark-800 bg-green-700 dark:bg-green-200 rounded-full">
+                                    i
+                                </span>
+                            @endif
                         </div>
-
                         <p class="text-gray-700 dark:text-gray-400">{{ substr($item->text, 0, 80) }}</p>
                     </button>
+                    @if ($item->marked)
+                        <div class="flex items-center px-4 py-2 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+                            role="alert">
+                            <svg class="flex-shrink-0 inline w-4 h-4 me-2" aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M7.8 2c-.5 0-1 .2-1.3.6A2 2 0 0 0 6 3.9V21a1 1 0 0 0 1.6.8l4.4-3.5 4.4 3.5A1 1 0 0 0 18 21V3.9c0-.5-.2-1-.5-1.3-.4-.4-.8-.6-1.3-.6H7.8Z" />
+                            </svg>
+                            <div>
+                                <span class="font-medium">bookmarked</span>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             @endforeach
         </div>
@@ -75,10 +92,10 @@
                 </div>
                 <!-- Modal footer -->
                 <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                    <button data-modal-hide="default-modal" type="button"
+                    <button data-modal-hide="default-modal" type="button" id="modalBookmarkBtn" onclick="bookmark(event)"
                         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                         <svg id="modalBookmark" class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 20">
+                            pointer-events="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 20">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="m13 19-6-5-6 5V2a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17Z" />
                         </svg>
@@ -94,23 +111,32 @@
         const modalImageLink = document.getElementById("modalImageLink")
         const modalImage = document.getElementById("modalImage")
         const modalBookmark = document.getElementById("modalBookmark")
+        const modalBookmarkBtn = document.getElementById("modalBookmarkBtn")
         const modalDate = document.getElementById("modalDate")
 
-        function fillin(text, img, marked,datetime) {
+        function fillin(id, text, img, marked, datetime) {
             modalDescription.innerHTML = text
             modalTitle.innerHTML = text.substring(0, 20) + " ..."
             modalImageLink.href = img
             modalImage.src = img
+            modalBookmarkBtn.value = id
             if (marked == 1) {
-                modalBookmark.fill = "currentColor"
+                modalBookmark.setAttribute('fill', "currentColor")
             } else {
-                modalBookmark.fill = "none"
+                modalBookmark.setAttribute('fill', "none")
             }
-            modalDate.innerHTML = datetime.substring(0, 10)+" at "+datetime.substring(10)+" UTC"
+            modalDate.innerHTML = datetime.substring(0, 10) + " at " + datetime.substring(10) + " UTC"
         }
 
-        function markTip(tipId) {
-
+        async function bookmark(event) {
+            const response = await fetch('tip/bookmark?id=' + event.target.value);
+            const data = await response.json();
+            location.reload()
+            if (data['status'] == "ok") {
+                alert("successfuly toggled")
+            } else {
+                alert("error while toggling")
+            }
         }
     </script>
 @endsection

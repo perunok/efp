@@ -29,6 +29,7 @@ Route::get('new_broadcast', function () {
 Route::post('broadcast/new',[HomeController::class,'makeBroadcast'])->name('make_broadcast');
 Route::post('broadcast/edit',[HomeController::class,'editBroadcast'])->name('broadcasted_list');
 Route::get('broadcast/rebroadcast',[HomeController::class,'rebroadcast']);
+Route::get('tip/bookmark',[HomeController::class,'bookmark']);
 
 Route::get('broadcasted_list',[HomeController::class,'showBroadcasted'])->name('broadcasted_list');
 

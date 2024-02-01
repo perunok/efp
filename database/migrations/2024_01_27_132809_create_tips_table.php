@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('tips', function (Blueprint $table) {
             $table->id();
-            $table->string("text",500);
-            $table->string("attachment",500);
+            $table->string("text", 500);
+            $table->string("attachment", 500)->nullable(true);
+            $table->string("for", 255)->default("");
             $table->boolean("marked")->default(false);
             $table->timestamps();
         });

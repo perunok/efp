@@ -22,7 +22,9 @@ class BotController extends Controller
     }
     function webhookUpdate()
     {
+        // return "";
         $update = Telegram::commandsHandler(true);
+        // error_log($update);
         // leave the command handling to handlers. return if it is a command
         if (isset($update->message->entities)) {
             return;
@@ -31,7 +33,8 @@ class BotController extends Controller
         if (isset($update->callback_query)) {
             $cid = $update->callback_query->message->chat->id;
             try {
-                $value = ['expected' => 'tip_evidence'];
+                $postId = explode("-", $update->callback_query->message->reply_markup->inline_keyboard[0][0]['callback_data'])[1];
+                $value = ['expected' => 'tip_evidence', 'isReplay' => true, 'post_id' => $postId];
                 Cache::forget($cid);
                 Cache::put($cid, $value);
                 $reply_markup = Keyboard::make([
@@ -112,6 +115,14 @@ class BotController extends Controller
         if ($data['expected'] == 'tip_evidence') {
             if (isset($update->message->text)) {
                 // handle it for it's text
+                if (isset($data['isReplay'])) {
+                    // it's a replay to already posted broadcast
+                    $value = ['expected' => 'tip_evicence_approval', 'text' => $update->message->text, 'isReplay' => true, 'post_id' => $data['post_id']];
+                    Cache::forget($chat_id);
+                    Cache::put($chat_id, $value, 600);
+                    $this->replay($update, "do you have any photo evidence you can send me?!", [['Yes'], ['No'], ['Abort']]);
+                    return;
+                }
                 $value = ['expected' => 'tip_evicence_approval', 'text' => $update->message->text];
                 Cache::forget($chat_id);
                 Cache::put($chat_id, $value, 600);
@@ -125,14 +136,31 @@ class BotController extends Controller
                 // handle the question of evidence
                 if ($update->message->text == "Yes") {
                     // wait for user to upload photo
-                    $value = ['expected' => 'evidence_photo', 'text' => Cache::get($chat_id)['text']];
+                    if (isset($data['isReplay'])) {
+                        $value = ['expected' => 'evidence_photo', 'text' => $data['text'], 'isReplay' => true, 'post_id' => $data['post_id']];
+                        Cache::forget($chat_id);
+                        Cache::put($chat_id, $value, 600);
+                        $this->replay($update, "Please send me a picture!", [['Abort']]);
+                    }
+                    $value = ['expected' => 'evidence_photo', 'text' => $data['text']];
                     Cache::forget($chat_id);
                     Cache::put($chat_id, $value, 600);
                     $this->replay($update, "Please send me a picture!", [['Abort']]);
                     return;
                 } elseif ($update->message->text == "No") {
                     // get the tip and finish
-                    $this->replay($update, "Thank you for reporting to the commision!", [['Drop Tip'], ['Setup Profile'], ['Search Announcements']]);
+                    if (isset($data['isReplay'])) {
+                        $postId = $data["post_id"];
+                        $this->replay($update, "Thank you for reporting to the commision!", [['Drop Tip'], ['Setup Profile'], ['Search Announcements']]);
+                        $tip = new Tip();
+                        $p1 = str_replace("'", "&prime;", $data['text']);
+                        $p2 = str_replace(["\r", "\n"], " <br /> ", $p1);
+                        $tip->for = $postId;
+                        $tip->text = $p2;
+                        $tip->save();
+                        Cache::forget($chat_id);
+                        return;
+                    }
                     $tip = new Tip();
                     $p1 = str_replace("'", "&prime;", Cache::get($chat_id)['text']);
                     $p2 = str_replace(["\r", "\n"], " <br /> ", $p1);
@@ -149,11 +177,26 @@ class BotController extends Controller
         } elseif ($data['expected'] == 'evidence_photo') {
             if (isset($update->message->photo)) {
                 // save the file , record into database and finish
+                if (isset($data['isReplay'])) {
+                    $postId = $data['post_id'];
+                    $this->replay($update, "We got Your Tip! Thank you for reporting to the commision!", [['Drop Tip'], ['Setup Profile'], ['Search Announcements']]);
+                    $file = Telegram::getFile(['file_id' => $update->message->photo->last()->file_id]);
+                    $fileName = Telegram::downloadFile($file, "Tip Photos");
+                    $tip = new Tip();
+                    $p1 = str_replace("'", " &prime;", $data['text']);
+                    $p2 = str_replace(["\r", "\n"], " <br /> ", $p1);
+                    $tip->text = $p2;
+                    $tip->for = $postId;
+                    $tip->attachment = $fileName;
+                    $tip->save();
+                    Cache::forget($chat_id);
+                    return;
+                }
                 $this->replay($update, "We got Your Tip! Thank you for reporting to the commision!", [['Drop Tip'], ['Setup Profile'], ['Search Announcements']]);
                 $file = Telegram::getFile(['file_id' => $update->message->photo->last()->file_id]);
                 $fileName = Telegram::downloadFile($file, "Tip Photos");
                 $tip = new Tip();
-                $p1 = str_replace("'", "&prime;", Cache::get($chat_id)['text']);
+                $p1 = str_replace("'", "&prime;", $data['text']);
                 $p2 = str_replace(["\r", "\n"], " <br /> ", $p1);
                 $tip->text = $p2;
                 $tip->attachment = $fileName;

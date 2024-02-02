@@ -18,7 +18,7 @@
                                 d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm3.982 13.982a1 1 0 0 1-1.414 0l-3.274-3.274A1.012 1.012 0 0 1 9 10V6a1 1 0 0 1 2 0v3.586l2.982 2.982a1 1 0 0 1 0 1.414Z" />
                         </svg>
                         @if (isset($filter))
-                            {{ $filter }}
+                            Last {{ $filter }}
                         @else
                             All
                         @endif
@@ -35,72 +35,74 @@
                         style="position: absolute; inset: auto auto 0px 0px; margin: 0px; transform: translate3d(522.5px, 3847.5px, 0px);">
                         <ul class="p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200"
                             aria-labelledby="dropdownRadioButton">
-                            <li>
-                                <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
-                                    <input
-                                        @isset($filter)
+                            <form id="frmFilter" action="broadcasted_list" method="get">
+                                <li>
+                                    <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                                        <input
+                                            @isset($filter)
                                         @if ($filter == 'day')
-                                            {{ checked }}
+                                            checked
                                         @endif
                                     @endisset
-                                        onchange="filter('day')" id="filter-radio-example-1" type="radio" value=""
-                                        name="filter-radio"
-                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                    <label for="filter-radio-example-1"
-                                        class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">Last
-                                        day</label>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
-                                    <input
-                                        @isset($filter)
-                                    @if ($filter == '7days')
-                                        {{ checked }}
+                                            onchange="filterTime()" id="filter_radio-example-1" type="radio"
+                                            value="day" name="filter"
+                                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                        <label for="filter_radio-example-1"
+                                            class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">Last
+                                            day</label>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                                        <input
+                                            @isset($filter)
+                                    @if ($filter == 'week')
+                                    checked
                                     @endif
                                 @endisset
-                                        onchange="filter('7days')" id="filter-radio-example-2" type="radio" value=""
-                                        name="filter-radio"
-                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                    <label for="filter-radio-example-2"
-                                        class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">Last
-                                        7
-                                        days</label>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
-                                    <input
-                                        @isset($filter)
+                                            onchange="filterTime()" id="filter_radio-example-2" type="radio"
+                                            value="week" name="filter"
+                                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                        <label for="filter_radio-example-2"
+                                            class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">Last
+                                            7
+                                            days</label>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                                        <input
+                                            @isset($filter)
                                     @if ($filter == 'month')
-                                        {{ checked }}
+                                    checked
                                     @endif
                                 @endisset
-                                        onchange="filter('month')" id="filter-radio-example-3" type="radio" value=""
-                                        name="filter-radio"
-                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                    <label for="filter-radio-example-3"
-                                        class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">Last
-                                        30
-                                        days</label>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
-                                    <input
-                                        @isset($filter)
+                                            onchange="filterTime()" id="filter_radio-example-3" type="radio"
+                                            value="month" name="filter"
+                                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                        <label for="filter_radio-example-3"
+                                            class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">Last
+                                            30
+                                            days</label>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                                        <input
+                                            @isset($filter)
                                     @if ($filter == 'year')
-                                        {{ checked }}
+                                    checked
                                     @endif
                                 @endisset
-                                        onchange="filter('year')" id="filter-radio-example-5" type="radio" value=""
-                                        name="filter-radio"
-                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                    <label for="filter-radio-example-5"
-                                        class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">Last
-                                        year</label>
-                                </div>
-                            </li>
+                                            onchange="filterTime()" id="filter_radio-example-5" type="radio"
+                                            value="year" name="filter"
+                                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                        <label for="filter_radio-example-5"
+                                            class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">Last
+                                            year</label>
+                                    </div>
+                                </li>
+                            </form>
                         </ul>
                     </div>
                 </div>
@@ -319,8 +321,8 @@
                 }
             }
 
-            function filter(d) {
-                alert(d)
+            function filterTime() {
+                frmFilter.submit()
             }
         </script>
 

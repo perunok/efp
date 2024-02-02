@@ -138,8 +138,24 @@ class BroadcastController extends Controller
         Broadcast::where('pid', $request->id)->update($broadcast);
         return redirect("broadcasted_list");
     }
-    function showBroadcasted()
+    function showBroadcasted(Request $request)
     {
+        if (isset($request->filter)) {
+            switch ($request->filter) {
+                case 'day':
+                    $broadcasted = Broadcast::day()->orderByDesc('id', 'desc')->get();
+                    return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "day"]);
+                case 'week':
+                    $broadcasted = Broadcast::week()->orderByDesc('id', 'desc')->get();
+                    return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "week"]);
+                case 'month':
+                    $broadcasted = Broadcast::month()->orderByDesc('id', 'desc')->get();
+                    return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "month"]);
+                case 'year':
+                    $broadcasted = Broadcast::year()->orderByDesc('id', 'desc')->get();
+                    return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "year"]);
+            }
+        }
         $broadcasted = Broadcast::orderByDesc('id', 'desc')->get();
         return view('broadcasted_list', ['broadcasted' => $broadcasted]);
     }

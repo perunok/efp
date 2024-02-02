@@ -62,7 +62,7 @@ class BroadcastController extends Controller
 
             $broadcast->message_data = rtrim($messageData, "-");
             $broadcast->save();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             error_log($th);
         }
 
@@ -140,24 +140,41 @@ class BroadcastController extends Controller
     }
     function showBroadcasted(Request $request)
     {
-        if (isset($request->filter)) {
-            switch ($request->filter) {
-                case 'day':
-                    $broadcasted = Broadcast::day()->orderByDesc('id', 'desc')->get();
-                    return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "day"]);
-                case 'week':
-                    $broadcasted = Broadcast::week()->orderByDesc('id', 'desc')->get();
-                    return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "week"]);
-                case 'month':
-                    $broadcasted = Broadcast::month()->orderByDesc('id', 'desc')->get();
-                    return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "month"]);
-                case 'year':
-                    $broadcasted = Broadcast::year()->orderByDesc('id', 'desc')->get();
-                    return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "year"]);
+        $startIndex = $request->start | 10;
+        $numberOfRecords = 5;
+        $total = count(Broadcast::all());
+
+        if (isset($request->type)) {
+            if ($request->type == "next") {
+                $broadcasted = Broadcast::orderByDesc('id', 'desc')->skip($request->offset)->take(5)->get();
+                return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "all", 'start' => $request->offset, 'end' => $request->offset + 5, 'total' => $total]);
+            } elseif ($request->type == "prev") {
+                $broadcasted = Broadcast::orderByDesc('id', 'desc')->skip($request->offset - 5)->take(5)->get();
+                return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "all", 'start' => $request->offset - 5, 'end' => $startIndex, 'total' => $total]);
             }
         }
-        $broadcasted = Broadcast::orderByDesc('id', 'desc')->get();
-        return view('broadcasted_list', ['broadcasted' => $broadcasted]);
+
+        if (isset($request->filter)) {
+            switch ($request->filter) {
+                case 'all':
+                    $broadcasted = Broadcast::orderByDesc('id', 'desc')->skip($startIndex)->take($numberOfRecords)->get();
+                    return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "all", 'start' => $startIndex, 'end' => $startIndex + $numberOfRecords, 'total' => $total]);
+                case 'day':
+                    $broadcasted = Broadcast::day()->orderByDesc('id', 'desc')->skip($startIndex)->take($numberOfRecords)->get();
+                    return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "day", 'start' => $startIndex, 'end' => $startIndex + $numberOfRecords, 'total' => $total]);
+                case 'week':
+                    $broadcasted = Broadcast::week()->orderByDesc('id', 'desc')->skip($startIndex)->take($numberOfRecords)->get();
+                    return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "week", 'start' => $startIndex, 'end' => $startIndex + $numberOfRecords, 'total' => $total]);
+                case 'month':
+                    $broadcasted = Broadcast::month()->orderByDesc('id', 'desc')->skip($startIndex)->take($numberOfRecords)->get();
+                    return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "month", 'start' => $startIndex, 'end' => $startIndex + $numberOfRecords, 'total' => $total]);
+                case 'year':
+                    $broadcasted = Broadcast::year()->orderByDesc('id', 'desc')->skip($startIndex)->take($numberOfRecords)->get();
+                    return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "year", 'start' => $startIndex, 'end' => $startIndex + $numberOfRecords, 'total' => $total]);
+            }
+        }
+        $broadcasted = Broadcast::orderByDesc('id', 'desc')->skip($startIndex)->take($numberOfRecords)->get();
+        return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "all", 'start' => 0, 'end' =>  $numberOfRecords, 'total' => $total]);
     }
     function rebroadcast(Request $request)
     {

@@ -17,11 +17,13 @@
                             <path
                                 d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm3.982 13.982a1 1 0 0 1-1.414 0l-3.274-3.274A1.012 1.012 0 0 1 9 10V6a1 1 0 0 1 2 0v3.586l2.982 2.982a1 1 0 0 1 0 1.414Z" />
                         </svg>
-                        @if (isset($filter))
-                            Last {{ $filter }}
-                        @else
-                            All
-                        @endif
+                        @isset($filter)
+                            @if ($filter == 'all')
+                                All
+                            @else
+                                Last {{ $filter }}
+                            @endif
+                        @endisset
                         <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                             viewBox="0 0 10 6">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -36,6 +38,21 @@
                         <ul class="p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200"
                             aria-labelledby="dropdownRadioButton">
                             <form id="frmFilter" action="broadcasted_list" method="get">
+                                <li>
+                                    <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                                        <input
+                                            @isset($filter)
+                                        @if ($filter == 'all')
+                                            checked
+                                        @endif
+                                    @endisset
+                                            onchange="filterTime()" id="filter_radio-example-0" type="radio"
+                                            value="all" name="filter"
+                                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                        <label for="filter_radio-example-0"
+                                            class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">All</label>
+                                    </div>
+                                </li>
                                 <li>
                                     <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
                                         <input
@@ -189,20 +206,20 @@
         <div class="flex flex-col items-end">
             <!-- Help text -->
             <span class="text-sm text-gray-700 dark:text-gray-400">
-                Showing <span class="font-semibold text-gray-900 dark:text-white">1</span> to <span
-                    class="font-semibold text-gray-900 dark:text-white">4</span> of <span
-                    class="font-semibold text-gray-900 dark:text-white">10</span> Entries
+                Showing <span class="font-semibold text-gray-900 dark:text-white">{{ $start }}</span> to <span
+                    class="font-semibold text-gray-900 dark:text-white">{{ $end }}</span> of <span
+                    class="font-semibold text-gray-900 dark:text-white">{{ $total }}</span> Entries
             </span>
             <!-- Buttons -->
             <div class="inline-flex mt-2 xs:mt-0 ">
-                <button
+                <a href="broadcasted_list?type=prev&&offset={{ $end-5 }}"
                     class="flex items-center justify-center px-4 h-10 text-base font-medium text-white bg-gray-800 rounded-s hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                     Prev
-                </button>
-                <button
+                </a>
+                <a href="broadcasted_list?type=next&&offset={{ $end }}"
                     class="flex items-center justify-center px-4 h-10 text-base font-medium text-white bg-gray-800 border-0 border-s border-gray-700 rounded-e hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                     Next
-                </button>
+                </a>
             </div>
         </div>
 

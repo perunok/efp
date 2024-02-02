@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BotController;
+use App\Http\Controllers\BroadcastController;
 use App\Http\Controllers\HomeController;
 
 /*
@@ -26,11 +27,11 @@ Route::get('new_broadcast', function () {
     return view('new_broadcast_form');
 })->name('new_broadcast');
 
-Route::post('broadcast/new', [HomeController::class, 'makeBroadcast'])->name('make_broadcast');
-Route::post('broadcast/edit', [HomeController::class, 'editBroadcast'])->name('broadcasted_list');
-Route::get('broadcast_get', [HomeController::class, 'getBroadcast']);
-Route::get('rebroadcast', [HomeController::class, 'rebroadcast']);
-Route::get('broadcasted_list', [HomeController::class, 'showBroadcasted'])->name('broadcasted_list');
+Route::post('broadcast/new', [BroadcastController::class, 'makeBroadcast'])->name('make_broadcast');
+Route::post('broadcast/edit', [BroadcastController::class, 'editBroadcast'])->name('broadcasted_list');
+Route::get('broadcast_get', [BroadcastController::class, 'getBroadcast']);
+Route::get('rebroadcast', [BroadcastController::class, 'rebroadcast']);
+Route::get('broadcasted_list', [BroadcastController::class, 'showBroadcasted'])->name('broadcasted_list');
 Route::get('tip/bookmark', [HomeController::class, 'bookmark']);
 
 

@@ -23,7 +23,7 @@
                             @if (!empty($item->for))
                                 <span
                                     class="inline-flex items-center justify-center w-4 h-4 ms-2 text-xs font-semibold text-dark-800 bg-green-700 dark:bg-green-200 rounded-full">
-                                    i
+                                    p
                                 </span>
                             @endif
                         </div>

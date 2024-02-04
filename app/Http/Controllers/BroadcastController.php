@@ -30,7 +30,7 @@ class BroadcastController extends Controller
         }
         $broadcast->attachment = $path;
         // broadcast if possible
-        $subscribers = Subscriber::all();
+        $subscribers = Subscriber::where('gets_broadcast', true)->get();
         $text = "*" . $request->title . "* \n" . $request->tags . "\n\n" . $request->description . "\n";
         try {
             $keyboard = json_encode([
@@ -140,17 +140,17 @@ class BroadcastController extends Controller
     }
     function showBroadcasted(Request $request)
     {
-        $startIndex = $request->start | 10;
-        $numberOfRecords = 5;
+        $startIndex = $request->start | 0;
+        $numberOfRecords = 7;
         $total = count(Broadcast::all());
 
         if (isset($request->type)) {
             if ($request->type == "next") {
-                $broadcasted = Broadcast::orderByDesc('id', 'desc')->skip($request->offset)->take(5)->get();
-                return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "all", 'start' => $request->offset, 'end' => $request->offset + 5, 'total' => $total]);
+                $broadcasted = Broadcast::orderByDesc('id', 'desc')->skip($request->offset)->take($numberOfRecords)->get();
+                return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "all", 'start' => $request->offset, 'end' => $request->offset + $numberOfRecords, 'total' => $total]);
             } elseif ($request->type == "prev") {
-                $broadcasted = Broadcast::orderByDesc('id', 'desc')->skip($request->offset - 5)->take(5)->get();
-                return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "all", 'start' => $request->offset - 5, 'end' => $startIndex, 'total' => $total]);
+                $broadcasted = Broadcast::orderByDesc('id', 'desc')->skip($request->offset - $numberOfRecords)->take($numberOfRecords)->get();
+                return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "all", 'start' => $request->offset - $numberOfRecords, 'end' => $startIndex, 'total' => $total]);
             }
         }
 
@@ -181,7 +181,7 @@ class BroadcastController extends Controller
         try {
             $id = $request->id;
             $broadcast = Broadcast::where('pid', $id)->first();
-            $subscribers = Subscriber::all();
+            $subscribers = Subscriber::where('gets_broadcast', true)->get();
             $path = $broadcast->attachment;
             $text = "*" . $broadcast->title . "* \n" . $broadcast->tags . "\n\n" . $broadcast->description . "\n";
             $keyboard = json_encode([

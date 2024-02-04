@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('subscribers', function (Blueprint $table) {
             $table->id();
-            $table->string("user_id",25)->unique();
-            $table->string("chat_id",25);
+            $table->string("user_id", 25)->unique();
+            $table->string("chat_id", 25);
+            $table->boolean("gets_broadcast");
             // more options is a must
             $table->timestamps();
         });

@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Tip;
 use Telegram\Bot\Keyboard\Keyboard;
 use App\Http\Controllers\Controller;
+use App\Models\Subscriber;
 use Illuminate\Support\Facades\Cache;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
 class BotController extends Controller
 {
+    // Todo start command should be mandatory! it's not now. 
+
     function index()
     {
         $response = Telegram::getWebhookInfo();
@@ -22,14 +25,12 @@ class BotController extends Controller
     }
     function webhookUpdate()
     {
-        // return "";
         $update = Telegram::commandsHandler(true);
-        // error_log($update);
         // leave the command handling to handlers. return if it is a command
         if (isset($update->message->entities)) {
             return;
         }
-        // handle if it is callback querry
+        // handle if it is callback querry ie. response to a post
         if (isset($update->callback_query)) {
             $cid = $update->callback_query->message->chat->id;
             try {
@@ -60,7 +61,7 @@ class BotController extends Controller
                 return;
             }
             // handle reserved keys 
-            $reserved_keys = ['Drop Tip', 'Abort'];
+            $reserved_keys = ['Drop Tip', 'Profile', 'Back To Home', 'Start Broadcasts', 'Stop Broadcasts', 'Abort'];
             if (!Cache::has($chat_id) && in_array($update->message->text, $reserved_keys, $update->getMessge())) {
                 $this->handleKey($update);
                 return;
@@ -70,7 +71,9 @@ class BotController extends Controller
                 $this->acceptOnlyExpected($update);
                 return;
             } else {
-                $this->replay($update, "please only use the provided buttons!", [["Drop Tip"], ["Edit Profile"]]);
+                // error_log($update);
+
+                $this->replay($update, "please only use the provided buttons!", [['Drop Tip'], ['Profile']]);
             }
         } catch (\Throwable $th) {
             error_log($th);
@@ -92,17 +95,40 @@ class BotController extends Controller
             case 'Drop Tip':
                 // accept the tip
                 $value = ['expected' => 'tip_evidence'];
-                Cache::forget($chat_id);
                 Cache::put($chat_id, $value);
                 $this->replay($update, "Ok! What's the tip?", [["Abort"]]);
                 return;
+            case 'Profile':
+                $subscriber = Subscriber::where('chat_id', $chat_id)->first();
+                if ($subscriber->gets_broadcast) {
+                    $this->replay($update, " 🛠 Profile Settings 🔧 \n 📢 Gets broadcasts - ✅ Yes  \n ", [['Stop Broadcasts'], ['Back To Home']]);
+                } else {
+                    $this->replay($update, " 🛠 Profile Settings 🔧 \n 📢 Gets broadcasts - ❌ No  \n ", [['Start Broadcasts'], ['Back To Home']]);
+                }
+
+                return;
+            case 'Start Broadcasts':
+                $subscriber = Subscriber::where('chat_id', $chat_id)->first();
+                $subscriber->gets_broadcast = 1;
+                $subscriber->save();
+                $this->replay($update, "Okay! You wil get future broadcasts ▶️", [['Stop Broadcasts'], ['Back To Home']]);
+                return;
+            case 'Stop Broadcasts':
+                $subscriber = Subscriber::where('chat_id', $chat_id)->first();
+                $subscriber->gets_broadcast = 0;
+                $subscriber->save();
+                $this->replay($update, "Okay! You won't get broadcasts anymore 🛑", [['Start Broadcasts'], ['Back To Home']]);
+                return;
+            case 'Back To Home':
+                $this->replay($update, "🏠 Returned Home!", [['Drop Tip'], ['Profile']]);
+                return;
             case 'Abort':
                 Cache::forget($chat_id);
-                $this->replay($update, "Canceled!", [["Drop Tip"], ["Edit Profile"]]);
+                $this->replay($update, "Canceled!", [['Drop Tip'], ['Profile']]);
                 return;
             default:
                 Telegram::sendMessage([
-                    'chat_id' => $chat_id, 'text' => 'Session Expired! Please Only Choose from The Menu'
+                    'chat_id' => $chat_id, 'text' => 'No Session Found or it Expired! Please Only Choose from The Menu'
                 ]);
                 return;
         }
@@ -152,7 +178,7 @@ class BotController extends Controller
                     // get the tip and finish
                     if (isset($data['isReplay'])) {
                         $postId = $data["post_id"];
-                        $this->replay($update, "Thank you for reporting to the commision!", [['Drop Tip'], ['Setup Profile'], ['Search Announcements']]);
+                        $this->replay($update, "Thank you for reporting to the commision!", [['Drop Tip'], ['Profile']]);
                         $tip = new Tip();
                         $p = str_replace("'", "&prime;", Cache::get($chat_id)['text']);
                         $tip->text = $p;
@@ -161,7 +187,7 @@ class BotController extends Controller
                         Cache::forget($chat_id);
                         return;
                     }
-                    $this->replay($update, "Thank you for reporting to the commision!", [['Drop Tip'], ['Setup Profile'], ['Search Announcements']]);
+                    $this->replay($update, "Thank you for reporting to the commision!", [['Drop Tip'], ['Profile']]);
                     $tip = new Tip();
                     $p = str_replace("'", "&prime;", Cache::get($chat_id)['text']);
                     $tip->text = $p;
@@ -179,7 +205,7 @@ class BotController extends Controller
                 // save the file , record into database and finish
                 if (isset($data['isReplay'])) {
                     $postId = $data['post_id'];
-                    $this->replay($update, "We got Your Tip! Thank you for reporting to the commision!", [['Drop Tip'], ['Setup Profile'], ['Search Announcements']]);
+                    $this->replay($update, "We got Your Tip! Thank you for reporting to the commision!", [['Drop Tip'], ['Profile']]);
                     $file = Telegram::getFile(['file_id' => $update->message->photo->last()->file_id]);
                     $fileName = Telegram::downloadFile($file, "Tip Photos");
                     $tip = new Tip();
@@ -192,7 +218,7 @@ class BotController extends Controller
                     Cache::forget($chat_id);
                     return;
                 }
-                $this->replay($update, "We got Your Tip! Thank you for reporting to the commision!", [['Drop Tip'], ['Setup Profile'], ['Search Announcements']]);
+                $this->replay($update, "We got Your Tip! Thank you for reporting to the commision!", [['Drop Tip'], ['Profile']]);
                 $file = Telegram::getFile(['file_id' => $update->message->photo->last()->file_id]);
                 $fileName = Telegram::downloadFile($file, "Tip Photos");
                 $tip = new Tip();

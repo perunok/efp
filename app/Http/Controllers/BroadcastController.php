@@ -158,7 +158,7 @@ class BroadcastController extends Controller
             switch ($request->filter) {
                 case 'all':
                     $broadcasted = Broadcast::orderByDesc('id', 'desc')->skip($startIndex)->take($numberOfRecords)->get();
-                    return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "all", 'start' => $startIndex, 'end' => $startIndex + $numberOfRecords, 'total' => $total]);
+                    return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "all", 'start' => 0, 'end' =>  $numberOfRecords, 'total' => $total]);
                 case 'day':
                     $broadcasted = Broadcast::day()->orderByDesc('id', 'desc')->skip($startIndex)->take($numberOfRecords)->get();
                     return view('broadcasted_list', ['broadcasted' => $broadcasted, 'filter' => "day", 'start' => $startIndex, 'end' => $startIndex + $numberOfRecords, 'total' => $total]);
